@@ -17,6 +17,7 @@ services:
       - "9200:9200"
     networks:
       - elk-network
+    restart: always
 
 volumes:
   es_data:

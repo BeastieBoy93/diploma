@@ -13,6 +13,8 @@ services:
       - /var/log/nginx/:/var/log/nginx/:ro
     networks:
       - elk-network
+    restart: always
+
 networks:
   elk-network:
     external: true
