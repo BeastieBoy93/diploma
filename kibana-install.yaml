@@ -1,0 +1,20 @@
+---
+- name: Kibana Instalation
+  hosts: kibana
+  become: yes
+  vars_files:
+    - vault-file.yaml
+  tasks:
+    - name: Copy compose file
+      template:
+        src: kibana-compose.j2
+        dest: /home/ubuntu/compose.yaml
+        owner: ubuntu
+        group: docker
+        mode: '0774'
+
+    - name: Create docker network
+      command: docker network create --driver bridge elk-network
+      ignore_errors: yes
+    - name: Run compose file
+      command: docker-compose up -d

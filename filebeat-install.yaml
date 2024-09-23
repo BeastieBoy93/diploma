@@ -1,0 +1,39 @@
+---
+- name: Filebeat Instalation
+  hosts: webvm
+  become: yes
+  vars_files:
+    - vault-file.yaml
+
+  tasks:
+    - name: Copy compose file
+      copy:
+        src: ./filebeat-compose.yaml
+        dest: /home/ubuntu/compose.yaml
+        owner: ubuntu
+        group: docker
+        mode: '0774'
+
+    - name: Copy Filebeat config
+      template:
+        src: filebeat-conf.j2
+        dest: /home/ubuntu/filebeat-conf.yml
+        owner: ubuntu
+        group: docker
+        mode: '0774'
+
+    - name: Create docker network
+      command: docker network create --driver bridge elk-network
+      ignore_errors: yes
+
+    - name: Create .env file with host's hostname
+      copy:
+        content: |
+          HOSTNAME={{ ansible_hostname }}
+        dest: /home/ubuntu/.env
+        owner: ubuntu
+        group: docker
+        mode: '0644'
+
+    - name: Run compose file
+      command: sudo -E docker-compose up -d

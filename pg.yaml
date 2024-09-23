@@ -1,0 +1,43 @@
+---
+- name: Install Postgre
+  hosts: zabbix
+  become: yes
+
+  tasks:
+    - name: Install packages
+      apt:
+        pkg:
+        - curl
+        - ca-certificates
+
+    - name: add dir for repo key
+      file:
+        path: /usr/share/postgresql-common/pgdg
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: add repo key
+      get_url:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Add repo
+      shell: |
+        sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+    - name: Install PostgreSQL
+      apt:
+        name: postgresql-14
+        state: latest
+        update_cache: true
+
+    - name: Ensure PostgreSQL is enabled
+      service:
+        name: postgresql
+        state: started
+        enabled: true

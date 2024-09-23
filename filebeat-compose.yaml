@@ -1,0 +1,18 @@
+version: '3'
+services:
+  filebeat:
+    image: elastic/filebeat:7.17.24
+    container_name: filebeat
+    hostname: ${HOSTNAME}
+    environment:
+      - HOSTNAME=${HOSTNAME}
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - /home/ubuntu/filebeat-conf.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/log/nginx/:/var/log/nginx/:ro
+    networks:
+      - elk-network
+networks:
+  elk-network:
+    external: true

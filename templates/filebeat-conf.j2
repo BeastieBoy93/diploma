@@ -1,0 +1,39 @@
+filebeat:
+  name: "${HOSTNAME}"
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/access.log
+    fields:
+      type: nginx_access
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/error.log
+    fields:
+      type: nginx_error
+    fields_under_root: true
+
+processors:
+  - add_host_metadata:
+      netinfo.enabled: true
+
+output.elasticsearch:
+  hosts: ["http://elastic.ru-central1.internal:9200"]
+  index: "web-nginx-logs-%{+yyyy-MM-dd}"
+  username: "elastic"
+  password: "{{ elastic_password }}"
+
+setup.template.settings:
+  index.number_of_shards: 1
+setup.ilm.enabled: false
+setup.template.name: "web-nginx-logs-*"
+setup.template.pattern: "web-nginx-logs-*"
+setup.template.overwrite: true
+setup.template.enabled: false
+
+setup.kibana:
+  host: "http://kibana.ru-central1.internal"

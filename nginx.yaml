@@ -1,0 +1,31 @@
+---
+- name: Install Nginx
+  hosts: webvm
+  become: yes
+
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: true
+
+    - name: Ensure Nginx is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: add new html
+      ansible.builtin.template:
+        src: templates/html.j2
+        dest: /var/www/html/index.nginx-debian.html
+      notify: "restart web"
+
+
+  handlers:
+    - name: restart nginx
+      service:
+        name:  nginx
+        state: restarted
+      listen: "restart web"

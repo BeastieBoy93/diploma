@@ -1,0 +1,27 @@
+version: '3'
+services:
+  elasticsearch:
+    image: elastic/elasticsearch:7.17.24
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=docker-cluster
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.port=9200
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD={{ elastic_password }}
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elk-network
+
+volumes:
+  es_data:
+    driver: local
+
+networks:
+  elk-network:
+    driver: bridge

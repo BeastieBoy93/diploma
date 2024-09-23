@@ -1,0 +1,36 @@
+---
+- name: Install Zabbix-Agent
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install package
+      apt:
+        deb: https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu22.04_all.deb
+
+    - name: Update cache
+      apt:
+        update_cache: yes
+
+    - name: Install Zabbix-Agent
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Add correct Zabbix-host to conf file
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regex: '^Server=127.0.0.1'
+        line: Server=zabbix.ru-central1.internal
+
+    - name: Add correct Zabbix-host to conf file 2
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regex: '^ServerActive=127.0.0.1'
+        line: ServerActive=zabbix.ru-central1.internal
+
+    - name: restart services
+      service:
+        name: zabbix-agent
+        state: restarted
+        enabled: yes
